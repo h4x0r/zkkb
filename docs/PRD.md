@@ -22,9 +22,11 @@ Existing kanban tools (Trello, Notion, Jira) store user data unencrypted on thei
 
 ZKKB is an end-to-end encrypted kanban board where:
 - All content is encrypted client-side before transmission
-- Zero-knowledge proofs verify board membership without revealing identity
+- Zero-knowledge proofs anonymize *which member* made *which edit* (activity anonymity)
 - Users control their keys via a 24-word recovery phrase
-- Real-time collaboration works without compromising privacy
+- Real-time collaboration works without compromising content privacy
+
+**Note**: The server knows who is a member (via email), but cannot see board content or attribute edits to specific members.
 
 ### 1.3 Target Users
 
@@ -257,7 +259,7 @@ sequenceDiagram
 **Requirements**:
 - FR-COLLAB-1: Out-of-band invite links (no server knowledge of inviter/invitee)
 - FR-COLLAB-2: Merkle tree membership verification
-- FR-COLLAB-3: ZK proof for board access (unlinkable to identity)
+- FR-COLLAB-3: ZK proof for sync operations (server cannot attribute edits to specific members)
 - FR-COLLAB-4: Real-time sync via WebSocket
 - FR-COLLAB-5: Automerge CRDT for conflict resolution
 
@@ -450,9 +452,11 @@ flowchart TB
 | Data | Server Can See | Server Cannot See |
 |------|----------------|-------------------|
 | Board existence | Board ID | Board name, content |
-| Membership | Commitment count | Who is a member |
-| Access | Timestamp | Who accessed |
+| Membership | Email → Board mapping | N/A (server knows members) |
+| Activity | That sync happened | Which member made which edit |
 | Attachments | Encrypted size | Content, filename |
+
+**Clarification**: The server knows *who* is a member (via `user_boards` table and email auth). ZK proofs anonymize *activity*, not membership. This is the "Chatham House" model: we know who's in the room, but not who said what.
 
 ---
 

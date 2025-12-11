@@ -1,4 +1,4 @@
-# ADR-002: Semaphore ZK Proofs for Anonymous Access
+# ADR-002: Semaphore ZK Proofs for Anonymous Activity
 
 ## Status
 
@@ -6,12 +6,18 @@ Accepted
 
 ## Context
 
-ZKKB needs to verify that a user is a member of a board without revealing which user they are. This prevents the server from:
-- Tracking which user accesses which board
-- Building activity profiles
-- Linking board membership to email addresses
+ZKKB needs to allow board members to sync changes without the server knowing *which* member made *which* edit. This provides **activity anonymity** within a group.
 
-Traditional approaches don't provide this:
+**What ZK proofs provide:**
+- Server cannot attribute specific edits to specific members
+- Server cannot build per-user activity timelines
+- Server cannot correlate "User X edited card Y at time Z"
+
+**What ZK proofs do NOT provide:**
+- Membership anonymity (server knows who is a member via `user_boards` table)
+- Email privacy (server has your email for authentication)
+
+Traditional approaches don't provide activity anonymity:
 
 | Approach | Server Knows |
 |----------|--------------|
@@ -20,7 +26,7 @@ Traditional approaches don't provide this:
 | Session cookies | User + timestamps |
 | IP tracking | Location + patterns |
 
-We need **anonymous authentication**: prove membership without identification.
+We need **anonymous activity**: prove membership for sync operations without revealing *which* member is syncing.
 
 ## Decision
 
@@ -114,7 +120,7 @@ Each proof includes a nullifier hash to prevent replay attacks:
 
 ### Positive
 
-- **True anonymity**: Server cannot link access to identity
+- **Activity anonymity**: Server cannot attribute edits to specific members
 - **Efficient verification**: ~10ms server-side
 - **Standard protocol**: Audited cryptography
 - **Scalable**: O(log n) proof size regardless of group size
@@ -124,7 +130,18 @@ Each proof includes a nullifier hash to prevent replay attacks:
 - **Proof generation time**: 2-5 seconds on client (WASM)
 - **Bundle size**: ~2MB for Semaphore WASM
 - **Complexity**: ZK concepts unfamiliar to most developers
-- **No revocation linking**: Can't easily audit "who accessed what"
+- **No activity audit**: Can't determine "who edited what" (by design)
+
+### Important Clarification
+
+ZK proofs anonymize **activity**, not **membership**:
+
+| Aspect | Anonymous? | Why |
+|--------|------------|-----|
+| Board membership | ❌ No | Server tracks via `user_boards` table |
+| Email address | ❌ No | Required for magic link auth |
+| Which member synced | ✅ Yes | ZK proof only proves "valid member" |
+| Which member edited what | ✅ Yes | Edits in encrypted blob, sync is anonymous |
 
 ### Tradeoffs
 
