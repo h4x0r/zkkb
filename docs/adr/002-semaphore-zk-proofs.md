@@ -13,9 +13,11 @@ ZKKB needs to allow board members to sync changes without the server knowing *wh
 - Server cannot build per-user activity timelines
 - Server cannot correlate "User X edited card Y at time Z"
 
-**What ZK proofs do NOT provide:**
-- Membership anonymity (server knows who is a member via `user_boards` table)
-- Email privacy (server has your email for authentication)
+**What ZK proofs do NOT provide (on their own):**
+- Membership anonymity — requires decoupled identity architecture
+- Email privacy — requires separating email from board operations
+
+> **Note**: With [ADR-006](006-decoupled-identity-architecture.md), we achieve BOTH activity AND membership anonymity by separating email (billing) from commitment (boards).
 
 Traditional approaches don't provide activity anonymity:
 
@@ -132,16 +134,20 @@ Each proof includes a nullifier hash to prevent replay attacks:
 - **Complexity**: ZK concepts unfamiliar to most developers
 - **No activity audit**: Can't determine "who edited what" (by design)
 
-### Important Clarification
+### Privacy Matrix (with ADR-006 Decoupled Architecture)
 
-ZK proofs anonymize **activity**, not **membership**:
+With the decoupled identity architecture, ZK proofs provide full anonymity:
 
-| Aspect | Anonymous? | Why |
+| Aspect | Anonymous? | How |
 |--------|------------|-----|
-| Board membership | ❌ No | Server tracks via `user_boards` table |
-| Email address | ❌ No | Required for magic link auth |
+| Board membership | ✅ Yes | No `user_boards` table; commitment ≠ email |
+| Email address | ✅ Yes | Email used for billing only, not board ops |
 | Which member synced | ✅ Yes | ZK proof only proves "valid member" |
 | Which member edited what | ✅ Yes | Edits in encrypted blob, sync is anonymous |
+
+**Without ADR-006**, only activity would be anonymous (server would know membership via `user_boards`).
+
+**With ADR-006**, both membership AND activity are anonymous — true Chatham House model.
 
 ### Tradeoffs
 
@@ -239,6 +245,11 @@ Rejected because:
 - Extremely slow
 - Overkill for membership proofs
 - Immature browser support
+
+## Related ADRs
+
+- [ADR-001: E2EE with BIP39](001-e2ee-recovery-phrase.md) — Key derivation for ZK identity
+- [ADR-006: Decoupled Identity](006-decoupled-identity-architecture.md) — Enables membership anonymity
 
 ## References
 

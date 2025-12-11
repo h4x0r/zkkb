@@ -86,21 +86,46 @@ export default {
 
 ### D1 (SQLite Database)
 
+The schema implements the **decoupled identity architecture** from [ADR-006](006-decoupled-identity-architecture.md), separating email (billing) from commitment (boards):
+
 ```sql
--- Minimal schema - server knows very little
+-- EMAIL DOMAIN: Billing only, no board references
 CREATE TABLE users (
   id TEXT PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
+  tier TEXT NOT NULL DEFAULT 'free',
+  funded_commitment_count INTEGER NOT NULL DEFAULT 0,
   created_at INTEGER NOT NULL
 );
 
+-- COMMITMENT DOMAIN: Boards linked to commitments, not users
 CREATE TABLE boards (
   id TEXT PRIMARY KEY,
+  creator_commitment TEXT NOT NULL,  -- NOT user_id
+  tier TEXT NOT NULL DEFAULT 'free',
   merkle_root TEXT NOT NULL,
   merkle_tree_json TEXT NOT NULL,
+  member_count INTEGER NOT NULL DEFAULT 1,
   created_at INTEGER NOT NULL
 );
 
+-- Quota tracking per commitment (unlinkable to email)
+CREATE TABLE commitment_quotas (
+  commitment TEXT PRIMARY KEY,
+  board_count INTEGER NOT NULL DEFAULT 0,
+  storage_bytes INTEGER NOT NULL DEFAULT 0,
+  storage_limit INTEGER NOT NULL,
+  expires_at INTEGER
+);
+
+-- Encrypted board list per commitment
+CREATE TABLE commitment_data (
+  commitment TEXT PRIMARY KEY,
+  encrypted_blob BLOB NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+
+-- Auth tables (email domain only)
 CREATE TABLE magic_links (
   id TEXT PRIMARY KEY,
   email TEXT NOT NULL,
@@ -116,6 +141,8 @@ CREATE TABLE sessions (
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 ```
+
+**Privacy guarantee**: No `user_boards` table. Server cannot link email to boards.
 
 ### R2 (Blob Storage)
 
@@ -286,6 +313,10 @@ Considered viable, rejected because:
 - Less integrated (no native blob storage)
 - Would need separate R2/S3 anyway
 - Cloudflare has better edge distribution
+
+## Related ADRs
+
+- [ADR-006: Decoupled Identity](006-decoupled-identity-architecture.md) — Schema design for privacy
 
 ## References
 

@@ -396,35 +396,52 @@ const isValid = await verifyProof(proof, group.root)
 | [ADR-003: CRDTs](docs/adr/003-automerge-crdt.md) | Why Automerge for sync |
 | [ADR-004: Infrastructure](docs/adr/004-cloudflare-infrastructure.md) | Why Cloudflare edge |
 | [ADR-005: Licensing](docs/adr/005-dual-licensing.md) | Open core model |
+| [ADR-006: Decoupled Identity](docs/adr/006-decoupled-identity-architecture.md) | Email ≠ Boards privacy |
 
 ---
 
 ## 👁️ The Chatham House Model
 
-**We know who's in the room. We can't see what's discussed or who said what.**
+**We know you're a paying customer. We cannot know which boards you're in.**
 
-Here's exactly what that means:
+ZKKB uses a **decoupled identity architecture** that separates billing from board operations:
 
-### The Server Knows
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     TWO SEPARATE DOMAINS                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  EMAIL DOMAIN              COMMITMENT DOMAIN                     │
+│  (billing)                 (boards)                              │
+│                                                                  │
+│  • Your email              • Your boards                         │
+│  • Your tier (free/pro)    • Your membership                     │
+│  • Payment info            • Your activity                       │
+│                                                                  │
+│           ╔═══════════════════════════════════╗                 │
+│           ║  NO LINK BETWEEN THESE DOMAINS    ║                 │
+│           ║  Only your device knows both      ║                 │
+│           ╚═══════════════════════════════════╝                 │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-| Data | Visibility | Why |
-|------|------------|-----|
-| Your email | ✅ Visible | Magic link authentication |
-| Which boards you created | ✅ Visible | Ownership tracking |
-| Which boards you're a member of | ✅ Visible | Access control |
-| When you authenticate | ✅ Visible | Session management |
-| Your tier (free/pro) | ✅ Visible | Limit enforcement |
+### What The Server Knows
 
-### The Server Cannot See
+| Email Domain | Commitment Domain |
+|--------------|-------------------|
+| ✅ Your email | ✅ Board exists |
+| ✅ Your tier | ✅ Commitment owns N boards |
+| ✅ That you funded a commitment | ✅ Encrypted content |
+| ❌ **Which** commitment | ❌ **Whose** commitment |
 
-| Data | Visibility | Why |
-|------|------------|-----|
-| Board names & content | 🔒 Encrypted | AES-256-GCM, key never leaves device |
-| Card text, comments | 🔒 Encrypted | Inside encrypted board blob |
-| Column names | 🔒 Encrypted | Inside encrypted board blob |
-| Attachment contents | 🔒 Encrypted | Encrypted before upload |
-| Your display name in boards | 🔒 Encrypted | Stored in encrypted member data |
-| Who made which edit | 🔒 Anonymous | ZK proofs don't reveal identity |
+### What The Server Cannot Link
+
+The server sees two separate facts:
+1. `"alice@example.com is a Pro customer"`
+2. `"Commitment 0x1a2b owns 3 boards"`
+
+**The server cannot link these facts.** Only your device knows that alice's commitment is 0x1a2b.
 
 ### What Other Board Members See
 
@@ -433,24 +450,23 @@ Here's exactly what that means:
 | Your display name | ✅ Visible | You choose it per-board |
 | Your avatar color | ✅ Visible | For visual identification |
 | Your edits & comments | ✅ Visible | Collaboration requires it |
-| Your email | ❌ Hidden | Never shared with members |
+| Your email | ❌ Hidden | Server doesn't even know |
 | Your other boards | ❌ Hidden | Completely separate |
 
-### The ZK Proof Advantage
+### True Chatham House
 
-When you sync changes to a board:
+Unlike traditional apps, we don't just hide *what* you say — we hide *which rooms you're in*:
 
 ```
-Traditional:  "User alice@example.com edited card #123"
-                ↓ Server logs who did what
+Traditional:  Server knows alice@... is in boards X, Y, Z
+              Server knows alice@... edited card #123
 
-ZKKB:         "Valid member proof for board xyz" + [encrypted changes]
-                ↓ Server knows SOMEONE edited, but not WHO
+ZKKB:         Server knows alice@... is a customer (that's it)
+              Server knows "some commitment" has boards (not whose)
+              Server knows "valid member" edited (not who)
 ```
 
-The server can verify you're authorized without learning which member you are. This prevents building activity timelines per-user.
-
-**Bottom line:** Just like Chatham House Rule — we know you attended, but your participation stays anonymous.
+**Bottom line:** We know you exist. We cannot know what you do.
 
 ---
 
@@ -462,18 +478,20 @@ The server can verify you're authorized without learning which member you are. T
 - ❌ See what your team discusses (cards, comments, columns)
 - ❌ Access your file contents (encrypted before upload)
 - ❌ Know who made which specific edit (ZK proofs)
+- ❌ Link your email to your boards (decoupled architecture)
 - ❌ Reset your password (there is none)
 - ❌ Recover your data without your phrase
 
 ### What We Can See
 
-- ✅ Your email (for authentication)
-- ✅ Which boards you're a member of
-- ✅ That activity happened (not what or by whom)
+- ✅ Your email exists and has a tier (billing only)
+- ✅ That boards exist (not whose)
+- ✅ That commitments have quotas (not whose)
 
 ### What This Means
 
 - ✅ **Content-proof**: Board content is unreadable to us
+- ✅ **Membership-anonymous**: Can't link email to boards
 - ✅ **Activity-anonymous**: Can't attribute edits to users
 - ✅ **You're in control**: Your phrase = your data
 
@@ -481,11 +499,11 @@ The server can verify you're authorized without learning which member you are. T
 
 | Threat | Mitigation |
 |--------|------------|
-| Server compromise | All content encrypted client-side |
+| Server compromise | All content encrypted; no email↔board link to steal |
 | Man-in-the-middle | TLS + E2EE (double encryption) |
-| Malicious insider | Server has no decryption keys |
-| Legal compulsion | Content is unreadable; only metadata (emails, board IDs) |
-| Activity tracking | ZK proofs prevent attributing edits to specific users |
+| Malicious insider | Server has no decryption keys, no linkage data |
+| Legal compulsion | Can only provide email list; cannot identify board membership |
+| Activity tracking | ZK proofs prevent attributing anything to users |
 
 ---
 

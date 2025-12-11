@@ -1,10 +1,10 @@
 # Product Requirements Document: ZKKB
 
 **Product Name**: ZKKB (Zero-Knowledge Kanban Board)
-**Version**: 1.0
-**Last Updated**: 2024-12-10
+**Version**: 2.0
+**Last Updated**: 2024-12-11
 **Author**: ZKKB Team
-**Status**: Draft
+**Status**: Accepted
 
 ---
 
@@ -17,18 +17,36 @@ Existing kanban tools (Trello, Notion, Jira) store user data unencrypted on thei
 - Data breaches expose sensitive project information
 - Compliance challenges for regulated industries
 - No user control over data access
+- Metadata reveals who collaborates with whom
 
 ### 1.2 Solution
 
-ZKKB is an end-to-end encrypted kanban board where:
-- All content is encrypted client-side before transmission
-- Zero-knowledge proofs anonymize *which member* made *which edit* (activity anonymity)
-- Users control their keys via a 24-word recovery phrase
-- Real-time collaboration works without compromising content privacy
+ZKKB is an end-to-end encrypted kanban board implementing the **Chatham House Model**:
 
-**Note**: The server knows who is a member (via email), but cannot see board content or attribute edits to specific members.
+> "We know you're a paying customer. We cannot know which boards you're in or what you do there."
 
-### 1.3 Target Users
+Key properties:
+- All content encrypted client-side before transmission
+- **Decoupled identity**: Email (billing) is separate from commitment (boards)
+- Zero-knowledge proofs for all board operations — no session auth
+- Server cannot link your email to your boards
+- Real-time collaboration without compromising privacy
+
+### 1.3 The Chatham House Model
+
+Unlike traditional apps where the server knows everything, ZKKB separates identity into two unlinkable domains:
+
+| Email Domain | Commitment Domain |
+|--------------|-------------------|
+| Authentication | Board operations |
+| Billing/tier | Membership proofs |
+| Storage quota | Board ownership |
+| Server links: email ↔ tier | Server links: commitment ↔ boards |
+| **No link between domains** | **Only client knows both** |
+
+See [ADR-006](adr/006-decoupled-identity-architecture.md) for technical details.
+
+### 1.4 Target Users
 
 | Segment | Description | Pain Point |
 |---------|-------------|------------|
@@ -37,7 +55,7 @@ ZKKB is an end-to-end encrypted kanban board where:
 | Legal/Compliance | Law firms, healthcare | Regulatory requirements (HIPAA, GDPR) |
 | Journalists/Activists | Investigative reporters, NGOs | Adversarial threat model |
 
-### 1.4 Success Metrics
+### 1.5 Success Metrics
 
 | Metric | Target (6 months) | Target (12 months) |
 |--------|-------------------|-------------------|
@@ -127,7 +145,11 @@ quadrantChart
 
 ## 4. Functional Requirements
 
-### 4.1 Authentication
+### 4.1 Authentication & Identity
+
+ZKKB uses a **decoupled identity model** where email authentication and board operations are completely separate.
+
+#### 4.1.1 Signup Flow
 
 ```mermaid
 sequenceDiagram
@@ -135,24 +157,52 @@ sequenceDiagram
     participant E as Extension
     participant S as Server
 
+    Note over U,S: EMAIL DOMAIN (one-time)
     U->>E: Enter email
     E->>S: POST /auth/send-code
     S->>U: Email with 6-digit code
     U->>E: Enter code
     E->>S: POST /auth/verify
-    S->>E: Session token
+    S->>E: Session token + tier info
+
+    Note over U,E: CLIENT-SIDE (never leaves device)
     E->>E: Generate recovery phrase
-    E->>E: Derive keys from phrase
+    E->>E: Derive commitment from phrase
+
+    Note over E,S: FUNDING (one-time link moment)
+    E->>S: POST /commitment/fund
+    S->>S: Grant quota to commitment
+    S->>S: Increment user.funded_count
+    S->>S: NO permanent link stored
+
+    Note over U,S: From now on: ZK proofs only
     E->>U: Display phrase (save it!)
-    E->>E: Store keys in IndexedDB
+```
+
+#### 4.1.2 Board Operations (Post-Signup)
+
+All board operations use ZK proofs — **email/session never involved**:
+
+```mermaid
+sequenceDiagram
+    participant E as Extension
+    participant S as Server
+
+    E->>E: Generate ZK proof
+    E->>S: POST /boards (+ ZK proof)
+    S->>S: Verify proof
+    S->>S: Check commitment quota
+    S->>E: Board created
 ```
 
 **Requirements**:
-- FR-AUTH-1: Magic link authentication via email
+- FR-AUTH-1: Magic link authentication via email (for billing only)
 - FR-AUTH-2: 6-digit verification code with 5-minute expiry
 - FR-AUTH-3: Rate limiting: 3 attempts per email per hour
 - FR-AUTH-4: BIP39 24-word recovery phrase generation
 - FR-AUTH-5: Key derivation from phrase (deterministic)
+- FR-AUTH-6: One-time commitment funding with no permanent email link
+- FR-AUTH-7: All board operations use ZK proofs, never session tokens
 
 ### 4.2 Board Management
 
@@ -390,21 +440,33 @@ flowchart TB
 
 ### 6.3 API Endpoints
 
+#### Email Domain (Billing)
+
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | POST | `/auth/send-code` | None | Request magic link |
 | POST | `/auth/verify` | None | Verify code, get session |
 | POST | `/auth/logout` | Session | Invalidate session |
-| GET | `/boards` | Session | List board IDs |
-| POST | `/boards` | Session | Create board |
+| POST | `/commitment/fund` | Session | Fund commitment with quota (one-time) |
+
+#### Commitment Domain (Boards)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/boards` | ZK Proof | Create board |
 | GET | `/boards/:id/tree` | ZK Proof | Get Merkle tree |
 | PUT | `/boards/:id/tree` | ZK Proof | Update Merkle tree |
 | GET | `/boards/:id/data` | ZK Proof | Get encrypted blob |
 | PUT | `/boards/:id/data` | ZK Proof | Update encrypted blob |
+| POST | `/boards/:id/upgrade` | ZK Proof | Upgrade board tier |
 | GET | `/boards/:id/sync` | ZK Proof | WebSocket upgrade |
+| GET | `/commitment/data` | ZK Proof | Get encrypted board list |
+| PUT | `/commitment/data` | ZK Proof | Update encrypted board list |
 | POST | `/attachments/upload-url` | ZK Proof | Get presigned upload URL |
 | GET | `/attachments/:key` | ZK Proof | Get presigned download URL |
 | DELETE | `/attachments/:key` | ZK Proof | Delete attachment |
+
+**Note**: No `GET /boards` endpoint — board list is client-managed via encrypted `commitment/data`.
 
 ---
 
@@ -447,16 +509,43 @@ flowchart TB
 | Email addresses | PII | D1, not linked to boards |
 | Merkle trees | Internal | Public commitments only |
 
-### 7.3 Server Knowledge Matrix
+### 7.3 Server Knowledge Matrix (Decoupled Architecture)
 
-| Data | Server Can See | Server Cannot See |
-|------|----------------|-------------------|
-| Board existence | Board ID | Board name, content |
-| Membership | Email → Board mapping | N/A (server knows members) |
-| Activity | That sync happened | Which member made which edit |
-| Attachments | Encrypted size | Content, filename |
+#### Email Domain
 
-**Clarification**: The server knows *who* is a member (via `user_boards` table and email auth). ZK proofs anonymize *activity*, not membership. This is the "Chatham House" model: we know who's in the room, but not who said what.
+| Data | Server Knows | Server Cannot Know |
+|------|--------------|-------------------|
+| Email address | ✅ Yes | — |
+| Tier (free/pro) | ✅ Yes | — |
+| Funded commitment count | ✅ Yes (e.g., "1") | Which commitment |
+| Payment info | ✅ Yes | — |
+
+#### Commitment Domain
+
+| Data | Server Knows | Server Cannot Know |
+|------|--------------|-------------------|
+| Board exists | ✅ Yes (board ID) | Board name, content |
+| Creator | ✅ Commitment | Whose commitment |
+| Members | ✅ Merkle tree | Who they are |
+| Activity | ✅ That sync happened | Which member |
+| Board count | ✅ Per commitment | Whose commitment |
+| Storage used | ✅ Per commitment | Whose commitment |
+
+#### The Privacy Guarantee
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Server sees TWO separate facts:                                │
+│                                                                  │
+│  1. "alice@example.com is a Pro customer"                       │
+│  2. "Commitment 0x1a2b owns 3 boards"                           │
+│                                                                  │
+│  Server CANNOT link these facts.                                │
+│  Only the client knows: alice's commitment is 0x1a2b            │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**True Chatham House**: We know you're a paying customer. We cannot know which rooms you're in.
 
 ---
 
@@ -539,14 +628,29 @@ flowchart TB
 |------|------------|
 | E2EE | End-to-end encryption |
 | ZK Proof | Zero-knowledge proof of membership |
-| Commitment | Public identifier derived from private key |
+| Commitment | Public identifier derived from private key, unlinkable to email |
 | Merkle Tree | Data structure for efficient membership proofs |
 | CRDT | Conflict-free Replicated Data Type |
 | BIP39 | Bitcoin Improvement Proposal for mnemonic phrases |
+| Decoupled Identity | Architecture where email (billing) and commitment (boards) are unlinkable |
+| Chatham House Model | Privacy model where server knows you exist but not what you do |
+| Funding | One-time operation granting quota to commitment without permanent link |
 
-### 10.2 References
+### 10.2 Architecture Decision Records
+
+| ADR | Title | Status |
+|-----|-------|--------|
+| [ADR-001](adr/001-e2ee-recovery-phrase.md) | E2EE with BIP39 Recovery Phrase | Accepted |
+| [ADR-002](adr/002-semaphore-zk-proofs.md) | Semaphore ZK Proofs for Anonymous Activity | Accepted |
+| [ADR-003](adr/003-automerge-crdt.md) | Automerge CRDT for Collaboration | Accepted |
+| [ADR-004](adr/004-cloudflare-infrastructure.md) | Cloudflare Infrastructure | Accepted |
+| [ADR-005](adr/005-dual-licensing.md) | Dual Licensing Model | Accepted |
+| [ADR-006](adr/006-decoupled-identity-architecture.md) | Decoupled Identity Architecture | Accepted |
+
+### 10.3 External References
 
 - [Semaphore Protocol](https://semaphore.pse.dev/)
 - [Automerge CRDT](https://automerge.org/)
 - [BIP39 Specification](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki)
 - [Cloudflare Workers](https://developers.cloudflare.com/workers/)
+- [Chatham House Rule](https://www.chathamhouse.org/about-us/chatham-house-rule)

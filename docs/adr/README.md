@@ -7,10 +7,15 @@ This directory contains Architecture Decision Records (ADRs) for ZKKB.
 | ADR | Title | Status | Date |
 |-----|-------|--------|------|
 | [ADR-001](001-e2ee-recovery-phrase.md) | E2EE with BIP39 Recovery Phrase | Accepted | 2024-12-10 |
-| [ADR-002](002-semaphore-zk-proofs.md) | Semaphore ZK Proofs for Anonymous Access | Accepted | 2024-12-10 |
+| [ADR-002](002-semaphore-zk-proofs.md) | Semaphore ZK Proofs for Anonymous Activity | Accepted | 2024-12-10 |
 | [ADR-003](003-automerge-crdt.md) | Automerge CRDT for Real-time Sync | Accepted | 2024-12-10 |
 | [ADR-004](004-cloudflare-infrastructure.md) | Cloudflare Workers Infrastructure | Accepted | 2024-12-10 |
 | [ADR-005](005-dual-licensing.md) | Dual Licensing for Freemium Model | Accepted | 2024-12-10 |
+| [ADR-006](006-decoupled-identity-architecture.md) | Decoupled Identity Architecture | Accepted | 2024-12-11 |
+
+## Key Architectural Concept
+
+ZKKB implements the **Chatham House Model** through ADR-006: email (billing) and commitment (boards) are completely separate domains with no server-side link. See [ADR-006](006-decoupled-identity-architecture.md) for details.
 
 ## Template
 
