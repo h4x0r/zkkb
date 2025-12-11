@@ -1,96 +1,84 @@
 direction: right
 
-email: "📧 EMAIL DOMAIN\n(Billing Only)" {
+email: EMAIL DOMAIN {
   style.fill: "#e5dbff"
   style.stroke: "#7950f2"
-  style.stroke-width: 3
+  style.stroke-width: 4
   style.font-size: 100
 
-  items: {
-    style.font-size: 80
-    label: |md
-      ✓ Your email
-      ✓ Your tier (free/pro)
-      ✓ Payment info
-      ✓ Stripe customer ID
-    |
-  }
+  title: |md
+    📧 **EMAIL DOMAIN**
+    (Billing Only)
+  |
 
-  server: "Server knows:" {
-    shape: rectangle
-    style.fill: "#f8f0fc"
-    style.stroke: "#7950f2"
-    style.font-size: 80
+  list: |md
+    ✓ Your email
+    ✓ Your tier (free/pro)
+    ✓ Payment info
+  |
 
-    info: {
-      style.font-size: 80
-      label: |md
-        "alice@example.com
-        is a Pro customer"
-      |
-    }
-  }
+  server_box: |md
+    **Server knows:**
+
+    "alice@example.com
+    is a Pro customer"
+  |
 }
 
-barrier: "⚠️ NO LINK\nBETWEEN\nDOMAINS" {
+barrier: NO LINK {
   style.fill: "#ffe3e3"
   style.stroke: "#c92a2a"
-  style.stroke-width: 4
+  style.stroke-width: 5
   style.font-size: 100
   style.bold: true
 
-  device: {
-    style.font-size: 80
-    label: |md
-      Only your
-      device
-      knows both
+  warning: |md
+    ⚠️ **NO LINK**
+    **BETWEEN**
+    **DOMAINS**
+  |
 
-      🔗⛓️‍💥
-    |
-  }
+  device: |md
+    Only your device
+    knows both
+
+    🔗⛓️‍💥
+  |
 }
 
-commitment: "🔐 COMMITMENT DOMAIN\n(Boards & Activity)" {
+commitment: COMMITMENT DOMAIN {
   style.fill: "#d3f9d8"
   style.stroke: "#0ca678"
-  style.stroke-width: 3
+  style.stroke-width: 4
   style.font-size: 100
 
-  items: {
-    style.font-size: 80
-    label: |md
-      ✓ Your boards
-      ✓ Your membership
-      ✓ Your activity
-      ✓ Encrypted content
-    |
-  }
+  title: |md
+    🔐 **COMMITMENT DOMAIN**
+    (Boards & Activity)
+  |
 
-  server: "Server knows:" {
-    shape: rectangle
-    style.fill: "#ebfbee"
-    style.stroke: "#0ca678"
-    style.font-size: 80
+  list: |md
+    ✓ Your boards
+    ✓ Your membership
+    ✓ Your activity
+  |
 
-    info: {
-      style.font-size: 80
-      label: |md
-        "Commitment 0x1a2b
-        owns 3 boards"
+  server_box: |md
+    **Server knows:**
 
-        (not whose!)
-      |
-    }
-  }
+    "Commitment 0x1a2b
+    owns 3 boards"
+
+    (not whose!)
+  |
 }
 
-email -> barrier: "Your device" {
+email -> barrier: {
   style.stroke-dash: 3
   style.opacity: 0.6
 }
 
-barrier -> commitment: "Your device" {
+barrier -> commitment: {
   style.stroke-dash: 3
   style.opacity: 0.6
 }
