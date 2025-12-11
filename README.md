@@ -150,7 +150,7 @@ flowchart TB
     C --> CRDT
     CRDT --> Final
 
-    style Final fill:#d3f9d8,stroke:#2f9e44,stroke-width:3px
+    style Final fill:#51cf66,stroke:#2b8a3e,stroke-width:3px,color:#000
 ```
 
 ---
