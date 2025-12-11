@@ -8,15 +8,15 @@
 <h3 align="center">Zero-Knowledge Kanban Board</h3>
 
 <p align="center">
-  <strong>The kanban board where not even we can see your data.</strong><br/>
-  End-to-end encrypted. Anonymous collaboration. Real-time sync.
+  <strong>Chatham House Rule for your projects.</strong><br/>
+  We know you're a member — not what you do.
 </p>
 
 <p align="center">
   <a href="#-quick-start">Quick Start</a> •
   <a href="#-features">Features</a> •
   <a href="#-how-it-works">How It Works</a> •
-  <a href="#️-privacy-model-who-sees-what">Privacy Model</a> •
+  <a href="#️-the-chatham-house-model">Chatham House</a> •
   <a href="#-pricing">Pricing</a>
 </p>
 
@@ -30,7 +30,11 @@ Traditional project management tools have full access to your data. Every card t
 
 ## The Solution
 
-ZKKB uses military-grade encryption where **the server only sees encrypted blobs**. When syncing changes, team members prove they belong using zero-knowledge proofs—the server knows *you're a member* but can't see *which edits are yours*.
+**Think: Chatham House Rule for project management.**
+
+Just like in a Chatham House meeting, the server knows who's in the room — but can't see what's discussed or who said what. Your edits are anonymous, your content is encrypted, your activity is untraceable.
+
+Under the hood: military-grade AES-256-GCM encryption and Semaphore zero-knowledge proofs.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -63,8 +67,8 @@ Every card, comment, and attachment encrypted with **AES-256-GCM** before leavin
 </td>
 <td width="50%">
 
-### 👻 Anonymous Collaboration
-**Semaphore zero-knowledge proofs** let team members prove they belong without revealing *who* they are. No tracking. No surveillance.
+### 👻 Chatham House Collaboration
+We know you're in the room — not what you say or do. **Zero-knowledge proofs** make your activity untraceable, even to us.
 
 </td>
 </tr>
@@ -395,9 +399,11 @@ const isValid = await verifyProof(proof, group.root)
 
 ---
 
-## 👁️ Privacy Model: Who Sees What
+## 👁️ The Chatham House Model
 
-Understanding exactly what's private and what's not:
+**We know who's in the room. We can't see what's discussed or who said what.**
+
+Here's exactly what that means:
 
 ### The Server Knows
 
@@ -444,7 +450,7 @@ ZKKB:         "Valid member proof for board xyz" + [encrypted changes]
 
 The server can verify you're authorized without learning which member you are. This prevents building activity timelines per-user.
 
-**Bottom line:** The server knows *that* you're a member, but not *what* you do as a member. Your email is known; your activity is anonymous.
+**Bottom line:** Just like Chatham House Rule — we know you attended, but your participation stays anonymous.
 
 ---
 
