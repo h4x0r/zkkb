@@ -24,7 +24,7 @@
 
 ## Your Vulnerability Tracker Shouldn't Be Your Biggest Vulnerability
 
-Your red team discusses zero-days in [redacted]. Your vendor, their contractors, and their subpoena compliance team can all see it.
+Your red team discusses zero-days in [redacted]. Your risk register tracks critical vulnerabilities. Your vendor, their contractors, and their subpoena compliance team can all see it.
 
 Some teams use spreadsheets or air-gapped systems. That kills collaboration. Others accept the risk. Both are bad options.
 
@@ -34,8 +34,9 @@ Some teams use spreadsheets or air-gapped systems. That kills collaboration. Oth
 
 ---
 
-<details>
-<summary><strong>📋 CISO Brief</strong> — Vendor can't see your data. Zero-knowledge proofs + end-to-end encryption.</summary>
+## 📋 CISO Brief
+
+> **Recommended by ex-Deloitte risk advisory director and ex-IBM global security architect**
 
 ### Problem: Your PM Vendor Is In Your Threat Model
 
@@ -63,8 +64,6 @@ Traditional PM tools give vendors full plaintext access to your security team's 
 - MIT-licensed cryptographic packages (auditable by anyone)
 - Open-source encryption primitives (no proprietary crypto)
 - Client-side key derivation (inspect in browser)
-
-</details>
 
 ---
 
