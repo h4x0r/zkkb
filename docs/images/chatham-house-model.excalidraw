@@ -266,12 +266,12 @@
       "locked": false,
       "fontSize": 48,
       "fontFamily": 2,
-      "text": "🔗⛓️‍💥",
+      "text": "⛓️‍💥",
       "baseline": 44,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "🔗⛓️‍💥"
+      "originalText": "⛓️‍💥"
     },
     {
       "type": "rectangle",
@@ -472,12 +472,12 @@
       "locked": false,
       "fontSize": 24,
       "fontFamily": 2,
-      "text": "Your device",
+      "text": "📱 Your device",
       "baseline": 21,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "Your device"
+      "originalText": "📱 Your device"
     }
   ],
   "appState": {
