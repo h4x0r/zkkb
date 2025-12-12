@@ -30,9 +30,7 @@ Some teams use spreadsheets or air-gapped systems. That kills collaboration. Oth
 
 **Chatham uses AES-256-GCM encryption and Semaphore ZK-SNARKs.** We can't see your data because we never have the keys.
 
-| What Vendor Sees | Traditional PM Tools | Chatham |
-|------------------|---------------------|---------|
-| **Your data** | ✅ Everything plaintext | ❌ Encrypted blobs + ZK proofs |
+**The server knows who's in the room — but can't see what's discussed or who said what.** Your edits are anonymous, your content is encrypted, your activity is untraceable.
 
 ---
 
