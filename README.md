@@ -58,7 +58,7 @@ Traditional PM tools give vendors full plaintext access to your security team's 
 - Keys never leave browser (test in local-only mode)
 - Vendor breach yields zero plaintext (simulate server compromise)
 
-**Detailed audit instructions:** See [For Security Teams](#-for-security-teams) section below for step-by-step verification.
+**Detailed audit instructions:** See [For Security Teams](#for-security-teams) section below for step-by-step verification.
 
 **Trust anchors:**
 - MIT-licensed cryptographic packages (auditable by anyone)
@@ -226,6 +226,9 @@ pnpm build
 # 4. Select the dist/ folder
 ```
 
+---
+
+<a name="for-security-teams"></a>
 <details>
 <summary><strong>🔒 For Security Teams</strong> — Deep security architecture & technical verification</summary>
 
