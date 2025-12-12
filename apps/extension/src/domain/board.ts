@@ -1,6 +1,6 @@
 import * as Automerge from '@automerge/automerge'
 import type { BoardContent } from '@chatham/types'
-import { createEmptyBoard, initializeBoard } from '@chatham/automerge'
+import { initializeBoard } from '@chatham/automerge'
 
 export function createBoard(name: string, creatorCommitment: string): Automerge.Doc<BoardContent> {
   return initializeBoard(
