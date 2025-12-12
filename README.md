@@ -188,7 +188,7 @@ flowchart TB
 - ✅ Card templates
 - ✅ Audit logs
 
-**Contact for pricing**
+**[Schedule demo](https://calendly.com/albert-hui/30min-meeting)**
 
 </td>
 </tr>
