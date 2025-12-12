@@ -1,10 +1,5 @@
+import { Automerge, initializeBoard } from '@chatham/automerge'
 import type { BoardContent } from '@chatham/types'
-import {
-  Automerge,
-  initializeBoard,
-  addCard as addCardOp,
-  updateCard as updateCardOp
-} from '@chatham/automerge'
 
 export function createBoard(name: string, creatorCommitment: string): Automerge.Doc<BoardContent> {
   return initializeBoard(
@@ -27,23 +22,26 @@ export function addCard(
   columnId: string,
   input: CardInput
 ): Automerge.Doc<BoardContent> {
-  const position = generatePosition()
-  // First add the card with title and position
-  let updated = addCardOp(board, columnId, input.title, position)
+  return Automerge.change(board, 'Add card', (doc) => {
+    const cardId = crypto.randomUUID()
+    const now = Date.now()
 
-  // If description is provided, update the card
-  if (input.description) {
-    const cardId = Object.keys(updated.cards).find(id =>
-      updated.cards[id].columnId === columnId &&
-      updated.cards[id].title === input.title &&
-      updated.cards[id].position === position
-    )
-    if (cardId) {
-      updated = updateCardOp(updated, cardId, { description: input.description })
+    doc.cards[cardId] = {
+      id: cardId,
+      columnId,
+      position: generatePosition(),
+      title: input.title,
+      description: input.description,
+      labels: [],
+      dueDate: null,
+      assignee: null,
+      checklist: [],
+      attachments: [],
+      comments: [],
+      createdAt: now,
+      updatedAt: now
     }
-  }
-
-  return updated
+  })
 }
 
 function generatePosition(): string {
