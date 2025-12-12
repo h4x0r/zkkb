@@ -230,7 +230,7 @@ pnpm build
 <details>
 <summary><strong>🔒 For Security Teams</strong> — Deep security architecture & technical verification</summary>
 
-## The Chatham House Model
+### The Chatham House Model
 
 **We know you're a paying customer. We cannot know which boards you're in.**
 
@@ -238,7 +238,7 @@ Chatham uses a **decoupled identity architecture** that separates billing from b
 
 ![Chatham House Model](docs/images/chatham-house-model.png)
 
-### What The Server Knows
+#### What The Server Knows
 
 | Email Domain | Commitment Domain |
 |--------------|-------------------|
@@ -247,7 +247,7 @@ Chatham uses a **decoupled identity architecture** that separates billing from b
 | ✅ That you funded a commitment | ✅ Encrypted content |
 | ❌ **Which** commitment | ❌ **Whose** commitment |
 
-### What The Server Cannot Link
+#### What The Server Cannot Link
 
 The server sees two separate facts:
 1. `"alice@example.com is a Pro customer"`
@@ -255,7 +255,7 @@ The server sees two separate facts:
 
 **The server cannot link these facts.** Only your device knows that alice's commitment is 0x1a2b.
 
-### What Other Board Members See
+#### What Other Board Members See
 
 | Data | Visibility | Why |
 |------|------------|-----|
@@ -265,7 +265,7 @@ The server sees two separate facts:
 | Your email | ❌ Hidden | Server doesn't even know |
 | Your other boards | ❌ Hidden | Completely separate |
 
-### True Chatham House
+#### True Chatham House
 
 Unlike traditional apps, we don't just hide *what* you say — we hide *which rooms you're in*:
 
@@ -296,11 +296,9 @@ Server knows:<br/><br/>
 
 ---
 
-## Deep Security Architecture
+### Threat Model Analysis
 
-## Threat Model Analysis
-
-### What We Protect Against
+#### What We Protect Against
 
 **Supply Chain Attacks on PM Vendor**
 - **Threat:** Attacker compromises vendor infrastructure (servers, databases, employees)
@@ -327,9 +325,9 @@ Server knows:<br/><br/>
 - **Traditional PM tools:** Full metadata visibility (who edited card X at timestamp Y)
 - **Chatham:** ZK-SNARKs break the link. Server sees "valid member edited board" but not which member.
 
-## Cryptographic Implementation
+### Cryptographic Implementation
 
-### Encryption Stack
+#### Encryption Stack
 
 ```
 Recovery Phrase (24 words, BIP-39)
@@ -354,7 +352,7 @@ Encrypted Blob → Server (R2 storage)
 - PBKDF2: Widely supported, proven track record (alternatives like Argon2 considered but opted for broader compatibility)
 - BIP-39: Standard recovery phrase format, familiar to crypto users
 
-### Zero-Knowledge Proof System
+#### Zero-Knowledge Proof System
 
 **Semaphore Protocol (ZK-SNARKs using Groth16):**
 - **Identity commitment:** Hash of user's identity secret → stored on server
@@ -372,7 +370,7 @@ Encrypted Blob → Server (R2 storage)
 - Server rejects duplicate nullifiers (prevents replay attacks)
 - Nullifier doesn't reveal identity
 
-## Comparison to Alternatives
+### Comparison to Alternatives
 
 | Security Property | Traditional PM | "Encrypted at Rest" | End-to-End Only | Chatham (E2E + ZK) |
 |-------------------|----------------|---------------------|-----------------|-------------------|
@@ -395,11 +393,9 @@ Self-hosting (Jira, GitLab on-prem) gives you control but massive operational ov
 
 ---
 
-## Technical Appendix
+### Technical Appendix
 
-### Audit Instructions
-
-### Quick Verification (5 minutes)
+#### Quick Verification (5 minutes)
 
 <details>
 <summary>Verify encryption happens client-side</summary>
@@ -428,7 +424,7 @@ localStorage.getItem('chatham_boards')
 
 </details>
 
-### Code Audit (30 minutes)
+#### Code Audit (30 minutes)
 
 <details>
 <summary>Critical files to review</summary>
@@ -463,7 +459,7 @@ localStorage.getItem('chatham_boards')
 
 </details>
 
-### Cryptographic Review (2 hours)
+#### Cryptographic Review (2 hours)
 
 <details>
 <summary>For cryptographers and security researchers</summary>
@@ -508,9 +504,9 @@ npm run fuzz:zkproof
 
 </details>
 
-## Code Walkthrough
+#### Code Walkthrough
 
-### Encryption Flow
+##### Encryption Flow
 
 <details>
 <summary>File: <code>packages/crypto/src/encryption.ts</code></summary>
@@ -586,7 +582,7 @@ export async function deriveKeysFromPhrase(
 
 </details>
 
-### Zero-Knowledge Proof Flow
+##### Zero-Knowledge Proof Flow
 
 <details>
 <summary>File: <code>packages/semaphore/src/proof.ts</code></summary>
@@ -625,9 +621,9 @@ export async function generateProof(
 
 </details>
 
-## Academic References
+#### Academic References
 
-### Cryptographic Primitives
+##### Cryptographic Primitives
 
 **AES-GCM:**
 - NIST SP 800-38D: *Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM)*
@@ -642,7 +638,7 @@ export async function generateProof(
 - Bitcoin Improvement Proposal 39: *Mnemonic code for generating deterministic keys*
   - https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
 
-### Zero-Knowledge Proofs
+##### Zero-Knowledge Proofs
 
 **Semaphore Protocol:**
 - Buterin, V. et al. (2021): *Semaphore: Zero-knowledge signaling on Ethereum*
@@ -658,14 +654,14 @@ export async function generateProof(
 - Ben-Sasson et al. (2014): *Succinct Non-Interactive Zero Knowledge for a von Neumann Architecture*
   - https://eprint.iacr.org/2013/879.pdf
 
-### CRDTs (Conflict-Free Replicated Data Types)
+##### CRDTs (Conflict-Free Replicated Data Types)
 
 **Automerge:**
 - Kleppmann, M. & Beresford, A. (2017): *A Conflict-Free Replicated JSON Datatype*
   - https://arxiv.org/abs/1608.03960
 - Automerge documentation: https://automerge.org/
 
-### Relevant Security Standards
+##### Relevant Security Standards
 
 **OWASP Cryptographic Storage Cheat Sheet:**
 - https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html
@@ -674,7 +670,7 @@ export async function generateProof(
 - While Chatham currently uses classical crypto, we're monitoring PQC standards
 - https://csrc.nist.gov/projects/post-quantum-cryptography
 
-## Open Source Packages
+#### Open Source Packages
 
 The cryptographic foundation is **MIT licensed** and fully auditable:
 
@@ -686,7 +682,7 @@ The cryptographic foundation is **MIT licensed** and fully auditable:
 | **[@chatham/storage](packages/storage)** | IndexedDB persistence layer | [![npm](https://img.shields.io/npm/v/@chatham/storage?style=flat-square)](https://npmjs.com/package/@chatham/storage) |
 | **[@chatham/types](packages/types)** | TypeScript definitions | [![npm](https://img.shields.io/npm/v/@chatham/types?style=flat-square)](https://npmjs.com/package/@chatham/types) |
 
-### Code Examples
+##### Code Examples
 
 <details>
 <summary><strong>Generate Recovery Phrase & Derive Keys</strong></summary>
