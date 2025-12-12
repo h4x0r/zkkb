@@ -506,9 +506,10 @@ Dual Licensed: MIT + Commercial
   - Crypto packages (`packages/*`)
   - Local-only application features (UI, storage, encryption)
 
-- **Cloud features** (private `chatham-pro` repository): Commercial License
+- **Cloud features** (private `chatham-pro` repository): **Proprietary** (NOT open source)
   - Cloud sync, collaboration, backend API
-  - Free tier: ≤5 users, ≤$1M revenue
+  - Commercial license required for production use
+  - Free tier available: ≤5 users, ≤$1M revenue
 
 See [ADR-005](docs/adr/005-dual-licensing.md) for details.
 
