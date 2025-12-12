@@ -229,7 +229,10 @@ pnpm build
 # 4. Select the dist/ folder
 ```
 
-## 👁️ The Chatham House Model
+<details>
+<summary><strong>🔒 For Security Teams</strong> — Deep security architecture & technical verification</summary>
+
+## The Chatham House Model
 
 **We know you're a paying customer. We cannot know which boards you're in.**
 
@@ -295,45 +298,7 @@ Server knows:<br/><br/>
 
 ---
 
-## 🔒 Security
-
-### What We Can't Do
-
-- ❌ Read your board contents (encrypted client-side)
-- ❌ See what your team discusses (cards, comments, columns)
-- ❌ Access your file contents (encrypted before upload)
-- ❌ Know who made which specific edit (ZK proofs)
-- ❌ Link your email to your boards (decoupled architecture)
-- ❌ Reset your password (there is none)
-- ❌ Recover your data without your phrase
-
-### What We Can See
-
-- ✅ Your email exists and has a tier (billing only)
-- ✅ That boards exist (not whose)
-- ✅ That commitments have quotas (not whose)
-
-### What This Means
-
-- ✅ **Content-proof**: Board content is unreadable to us
-- ✅ **Membership-anonymous**: Can't link email to boards
-- ✅ **Activity-anonymous**: Can't attribute edits to users
-- ✅ **You're in control**: Your phrase = your data
-
-### Threat Model
-
-| Threat | Mitigation |
-|--------|------------|
-| Server compromise | All content encrypted; no email↔board link to steal |
-| Man-in-the-middle | TLS + E2EE (double encryption) |
-| Malicious insider | Server has no decryption keys, no linkage data |
-| Legal compulsion | Can only provide email list; cannot identify board membership |
-| Activity tracking | ZK proofs prevent attributing anything to users |
-
----
-
-<details>
-<summary><strong>🔒 Deep Security Architecture</strong> — Threat model analysis, cryptographic implementation, security comparison</summary>
+## Deep Security Architecture
 
 ## Threat Model Analysis
 
@@ -430,14 +395,11 @@ E2E encryption (like Signal for messages) protects content but not metadata. The
 **Why not self-host?**
 Self-hosting (Jira, GitLab on-prem) gives you control but massive operational overhead. You're now responsible for security patches, backups, scaling, and disaster recovery. Chatham gives you the security guarantees of self-hosting without the ops burden.
 
-</details>
-
 ---
 
-<details>
-<summary><strong>🔬 Technical Appendix</strong> — Audit instructions, code walkthrough, academic references</summary>
+## Technical Appendix
 
-## Audit Instructions
+### Audit Instructions
 
 ### Quick Verification (5 minutes)
 
