@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { createBoard, addCard, moveCard, updateCard } from '@/domain/board'
+import { createBoard, addCard, moveCard, updateCard, deleteCard } from '@/domain/board'
 
 describe('createBoard', () => {
   test('creates board with name and default columns', () => {
@@ -61,5 +61,18 @@ describe('updateCard', () => {
     expect(updated.cards[cardId].title).toBe('Updated CVE')
     expect(updated.cards[cardId].description).toBe('New details')
     expect(updated.cards[cardId].updatedAt).toBeGreaterThanOrEqual(board.cards[cardId].createdAt)
+  })
+})
+
+describe('deleteCard', () => {
+  test('removes card from board', () => {
+    let board = createBoard('Test', 'user-123')
+    board = addCard(board, board.columns[0].id, { title: 'Delete me', description: '' })
+    const cardId = Object.keys(board.cards)[0]
+
+    const updated = deleteCard(board, cardId)
+
+    expect(updated.cards[cardId]).toBeUndefined()
+    expect(Object.keys(updated.cards)).toHaveLength(0)
   })
 })

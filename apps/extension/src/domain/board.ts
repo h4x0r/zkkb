@@ -93,3 +93,16 @@ export function updateCard(
     card.updatedAt = Date.now()
   })
 }
+
+export function deleteCard(
+  board: Automerge.Doc<BoardContent>,
+  cardId: string
+): Automerge.Doc<BoardContent> {
+  return Automerge.change(board, 'Delete card', (doc) => {
+    if (!doc.cards[cardId]) {
+      throw new Error(`Card ${cardId} not found`)
+    }
+
+    delete doc.cards[cardId]
+  })
+}
