@@ -1,5 +1,5 @@
 import { Automerge, initializeBoard } from '@chatham/automerge'
-import type { BoardContent } from '@chatham/types'
+import type { BoardContent, Label } from '@chatham/types'
 
 export function createBoard(name: string, creatorCommitment: string): Automerge.Doc<BoardContent> {
   return initializeBoard(
@@ -63,5 +63,33 @@ export function moveCard(
     doc.cards[cardId].columnId = targetColumnId
     doc.cards[cardId].position = position
     doc.cards[cardId].updatedAt = Date.now()
+  })
+}
+
+export interface CardUpdate {
+  title?: string
+  description?: string
+  labels?: Label[]
+  dueDate?: number | null
+  assignee?: string | null
+}
+
+export function updateCard(
+  board: Automerge.Doc<BoardContent>,
+  cardId: string,
+  updates: CardUpdate
+): Automerge.Doc<BoardContent> {
+  return Automerge.change(board, 'Update card', (doc) => {
+    if (!doc.cards[cardId]) {
+      throw new Error(`Card ${cardId} not found`)
+    }
+
+    const card = doc.cards[cardId]
+    if (updates.title !== undefined) card.title = updates.title
+    if (updates.description !== undefined) card.description = updates.description
+    if (updates.labels !== undefined) card.labels = updates.labels
+    if (updates.dueDate !== undefined) card.dueDate = updates.dueDate
+    if (updates.assignee !== undefined) card.assignee = updates.assignee
+    card.updatedAt = Date.now()
   })
 }
