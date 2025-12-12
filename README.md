@@ -51,15 +51,13 @@ Traditional PM tools give vendors full plaintext access to your security team's 
 
 ### Proof: How to Validate Our Claims
 
-**Quick verification (5 minutes):**
-- Install extension → Create test board → Open browser DevTools Network tab → See encrypted payloads
-- Inspect localStorage → See encrypted board data locally
-- Review source code: All crypto packages are MIT-licensed at `packages/crypto/*`
+**Have your security team verify:**
+- Encryption happens client-side (inspect network traffic for encrypted payloads only)
+- Recovery phrase never sent to server (audit crypto implementation)
+- Keys never leave browser (test in local-only mode)
+- Vendor breach yields zero plaintext (simulate server compromise)
 
-**For security teams:**
-- Audit our cryptographic implementation (links in Technical Appendix below)
-- Run local-only mode: disconnect network, verify full functionality
-- Test threat scenarios: "What if Cloudflare is breached?" (see Deep Security Architecture)
+**Detailed audit instructions:** See "For Security Teams" section below for step-by-step verification (5 min → 30 min → 2 hour tracks).
 
 **Trust anchors:**
 - MIT-licensed cryptographic packages (auditable by anyone)
