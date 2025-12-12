@@ -65,7 +65,7 @@ Traditional PM tools give vendors full plaintext access to your security team's 
 - Open-source encryption primitives (no proprietary crypto)
 - Client-side key derivation (inspect in browser)
 
-**→ [Contact for enterprise demo](mailto:info@chatham.one)**
+**→ [Schedule enterprise demo](https://calendly.com/albert-hui/30min-meeting)**
 
 ---
 
