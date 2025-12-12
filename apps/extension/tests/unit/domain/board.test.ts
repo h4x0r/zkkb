@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { createBoard, addCard } from '@/domain/board'
+import { createBoard, addCard, moveCard } from '@/domain/board'
 
 describe('createBoard', () => {
   test('creates board with name and default columns', () => {
@@ -28,5 +28,21 @@ describe('addCard', () => {
     expect(cards[0].title).toBe('Fix CVE-2024-1234')
     expect(cards[0].description).toBe('Critical RCE vulnerability')
     expect(cards[0].columnId).toBe(columnId)
+  })
+})
+
+describe('moveCard', () => {
+  test('moves card to different column with new position', () => {
+    const board = createBoard('Test', 'user-123')
+    const todoCol = board.columns[0].id
+    const doneCol = board.columns[2].id
+
+    let updated = addCard(board, todoCol, { title: 'Task', description: '' })
+    const cardId = Object.keys(updated.cards)[0]
+
+    updated = moveCard(updated, cardId, doneCol, 'z')
+
+    expect(updated.cards[cardId].columnId).toBe(doneCol)
+    expect(updated.cards[cardId].position).toBe('z')
   })
 })
